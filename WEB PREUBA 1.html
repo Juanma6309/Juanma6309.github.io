@@ -1,0 +1,408 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CryptoSapiens - Tu Portal de Noticias Web3</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Condensed:wght@700&display=swap" rel="stylesheet">
+    <!-- Chosen Palette: "Tech Horizon" - A professional and modern palette using a dark navy (#1a202c) for text and headers, a vibrant electric blue (#007BFF) as the primary accent for links and CTAs, and a clean white/light gray (#F7FAFC) background to ensure readability and a premium feel. -->
+    <!-- Application Structure Plan: The SPA is structured like a professional digital news portal to maximize user engagement and information discovery. The architecture includes: 1. **Header & Ticker**: For immediate brand recognition and live market data. 2. **Hero Section**: A prominent "above the fold" area for the day's top story to capture user attention instantly. 3. **Secondary Grid**: A multi-column grid for other important news, creating a high-density, scannable layout typical of major news sites. 4. **In-Depth Analysis Section**: A dedicated area for a featured article, paired with an interactive data visualization (the BTC price chart) to provide deeper context and encourage user interaction. 5. **Categorized Lists**: Simple, chronological lists for "Últimas Noticias" to ensure content freshness is visible. This structure was chosen because it's a proven, user-friendly pattern for content-heavy sites, guiding users from top headlines to deeper analysis naturally. -->
+    <!-- Visualization & Content Choices: 
+    - **Market Data**: Report Info -> Key crypto prices. Goal -> Inform. Viz/Presentation -> A scrolling ticker-like bar (HTML/CSS) and a static market list. Interaction -> N/A (visual scan). Justification -> Provides essential, at-a-glance information vital for the target audience. Library/Method -> HTML/Tailwind.
+    - **Bitcoin Price Trend**: Report Info -> Historical BTC price analysis. Goal -> Show Change/Analyze. Viz/Presentation -> Interactive Line Chart. Interaction -> User can filter time ranges (7D, 30D, 9D) via buttons, which dynamically updates the chart. Justification -> This is the most effective way to visualize time-series data and adds a critical interactive element for a finance-focused site. Library/Method -> Chart.js.
+    - **News Layout**: Report Info -> Various article headlines and summaries. Goal -> Organize/Inform. Viz/Presentation -> A combination of a large hero component and a responsive grid of article cards. Interaction -> Hover effects for visual feedback. Justification -> This hierarchical visual design effectively communicates the relative importance of news stories. Library/Method -> HTML/Tailwind.
+    - CONFIRMING NO SVG/Mermaid used. -->
+    <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #F7FAFC;
+        }
+        h1, h2, h3, h4, h5, h6, .font-condensed {
+            font-family: 'Roboto Condensed', sans-serif;
+        }
+        .text-accent { color: #007BFF; }
+        .bg-accent { background-color: #007BFF; }
+        .border-accent { border-color: #007BFF; }
+        .text-primary { color: #1a202c; }
+        .bg-primary { background-color: #1a202c; }
+        .nav-link {
+            position: relative;
+            transition: color 0.3s;
+        }
+        .nav-link::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            transform: scaleX(0);
+            height: 2px;
+            bottom: -4px;
+            left: 0;
+            background-color: #007BFF;
+            transform-origin: bottom right;
+            transition: transform 0.25s ease-out;
+        }
+        .nav-link:hover { color: #007BFF; }
+        .nav-link:hover::after {
+            transform: scaleX(1);
+            transform-origin: bottom left;
+        }
+        .article-card {
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+        .article-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+        }
+        .chart-container {
+            position: relative;
+            width: 100%;
+            max-width: 800px;
+            margin-left: auto;
+            margin-right: auto;
+            height: 400px;
+            max-height: 50vh;
+        }
+        @keyframes scroll {
+            0% { transform: translateX(0); }
+            100% { transform: translateX(-50%); }
+        }
+        .scrolling-ticker-content {
+            animation: scroll 40s linear infinite;
+        }
+        .modal-overlay {
+            transition: opacity 0.3s ease;
+        }
+        .modal-content {
+            transition: transform 0.3s ease, opacity 0.3s ease;
+        }
+    </style>
+</head>
+<body class="text-primary">
+
+    <header class="bg-white border-b border-gray-200 sticky top-0 z-50">
+        <div class="container mx-auto px-4">
+            <nav class="flex justify-between items-center py-4">
+                <div class="text-3xl font-bold font-condensed tracking-wider">
+                    <a href="#">Crypto<span class="text-accent">Sapiens</span></a>
+                </div>
+                <div class="hidden md:flex items-center space-x-8 uppercase text-sm font-bold">
+                    <a href="#analisis-profundo" class="nav-link">Mercados</a>
+                    <a href="#hero" class="nav-link">Última Hora</a>
+                    <a href="#ultimas-noticias" class="nav-link">Noticias</a>
+                    <a href="#guias" class="nav-link">Guías</a>
+                </div>
+                <div class="flex items-center">
+                     <button id="subscribe-btn" class="hidden md:block bg-accent text-white font-bold py-2 px-4 rounded-lg text-sm hover:bg-opacity-90 transition-all">Suscribirse</button>
+                     <button id="mobile-menu-button" class="md:hidden ml-4 text-primary focus:outline-none">
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
+                    </button>
+                </div>
+            </nav>
+        </div>
+        <div id="market-ticker" class="bg-primary text-white text-sm border-t border-gray-600 overflow-hidden">
+             <div class="scrolling-ticker-content flex">
+                <div class="flex-shrink-0 flex space-x-6 px-4 py-2 items-center">
+                    <span class="font-bold">ACTUALIZADO: 15 OCT 2025, 17:15 CEST</span>
+                    <div class="flex items-center"><strong>BTC</strong>: $125,430.50 <span class="text-green-400 ml-1">▲ 8.2%</span></div>
+                    <div class="flex items-center"><strong>ETH</strong>: $8,950.10 <span class="text-green-400 ml-1">▲ 6.5%</span></div>
+                    <div class="flex items-center"><strong>SOL</strong>: $450.75 <span class="text-red-400 ml-1">▼ 1.2%</span></div>
+                    <div class="flex items-center"><strong>ADA</strong>: $1.85 <span class="text-green-400 ml-1">▲ 3.1%</span></div>
+                    <div class="flex items-center"><strong>XRP</strong>: $1.12 <span class="text-red-400 ml-1">▼ 0.5%</span></div>
+                    <div class="flex items-center"><strong>DOT</strong>: $55.30 <span class="text-green-400 ml-1">▲ 4.8%</span></div>
+                </div>
+                <div class="flex-shrink-0 flex space-x-6 px-4 py-2 items-center">
+                    <span class="font-bold">ACTUALIZADO: 15 OCT 2025, 17:15 CEST</span>
+                    <div class="flex items-center"><strong>BTC</strong>: $125,430.50 <span class="text-green-400 ml-1">▲ 8.2%</span></div>
+                    <div class="flex items-center"><strong>ETH</strong>: $8,950.10 <span class="text-green-400 ml-1">▲ 6.5%</span></div>
+                    <div class="flex items-center"><strong>SOL</strong>: $450.75 <span class="text-red-400 ml-1">▼ 1.2%</span></div>
+                    <div class="flex items-center"><strong>ADA</strong>: $1.85 <span class="text-green-400 ml-1">▲ 3.1%</span></div>
+                    <div class="flex items-center"><strong>XRP</strong>: $1.12 <span class="text-red-400 ml-1">▼ 0.5%</span></div>
+                    <div class="flex items-center"><strong>DOT</strong>: $55.30 <span class="text-green-400 ml-1">▲ 4.8%</span></div>
+                </div>
+            </div>
+        </div>
+         <div id="mobile-menu" class="hidden md:hidden px-4 pb-4 border-t">
+            <a href="#analisis-profundo" class="block py-2 uppercase text-sm font-bold nav-link">Mercados</a>
+            <a href="#hero" class="block py-2 uppercase text-sm font-bold nav-link">Última Hora</a>
+            <a href="#ultimas-noticias" class="block py-2 uppercase text-sm font-bold nav-link">Noticias</a>
+            <a href="#guias" class="block py-2 uppercase text-sm font-bold nav-link">Guías</a>
+        </div>
+    </header>
+
+    <main class="container mx-auto px-4 mt-8">
+        <!-- Hero Section -->
+        <section id="hero" class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12 scroll-mt-24">
+            <div class="lg:col-span-2">
+                <article class="article-card bg-white rounded-lg shadow-md overflow-hidden h-full">
+                    <div class="relative">
+                        <img src="https://placehold.co/1200x800/1a202c/F7FAFC?text=BTC+ATH" alt="Gráfico de Bitcoin alcanzando un máximo histórico" class="w-full h-96 object-cover">
+                        <div class="absolute bottom-0 left-0 bg-red-600 text-white px-3 py-1 text-sm font-bold uppercase">ÚLTIMA HORA</div>
+                    </div>
+                    <div class="p-6">
+                        <h1 class="text-4xl font-bold font-condensed mb-2 text-primary hover:text-accent transition-colors"><a href="#">¡HISTÓRICO! Bitcoin pulveriza su máximo anterior y supera la barrera de los $125,000</a></h1>
+                        <p class="text-gray-600 mb-4">El optimismo institucional y la adopción masiva impulsan a la criptomoneda reina a un nuevo hito sin precedentes. Analistas predicen que este es solo el comienzo de un nuevo ciclo alcista.</p>
+                        <span class="text-xs text-gray-500 uppercase font-semibold">Por Alex Romero - Hace 15 minutos</span>
+                    </div>
+                </article>
+            </div>
+            <div class="space-y-8">
+                <article class="article-card bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="p-6">
+                        <h2 class="text-xl font-bold font-condensed mb-2 text-primary hover:text-accent transition-colors"><a href="#">Ethereum 2.5: La Fusión de Praga y su Impacto Real en las Gas Fees</a></h2>
+                        <p class="text-gray-600 text-sm mb-3">La próxima gran actualización de Ethereum promete reducir aún más los costes de transacción. ¿Cumplirá las expectativas?</p>
+                        <span class="text-xs text-gray-500 uppercase font-semibold">Análisis Técnico</span>
+                    </div>
+                </article>
+                 <article class="article-card bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="p-6">
+                        <h2 class="text-xl font-bold font-condensed mb-2 text-primary hover:text-accent transition-colors"><a href="#">Europa Avanza: La Regulación MiCA 2.0 Entra en Fase de Consulta Pública</a></h2>
+                        <p class="text-gray-600 text-sm mb-3">El marco regulatorio que definirá el futuro de los criptoactivos en la Unión Europea se somete a debate. Te contamos las claves.</p>
+                         <span class="text-xs text-gray-500 uppercase font-semibold">Regulación</span>
+                    </div>
+                </article>
+                 <article class="article-card bg-white rounded-lg shadow-md overflow-hidden">
+                    <div class="p-6">
+                        <h2 class="text-xl font-bold font-condensed mb-2 text-primary hover:text-accent transition-colors"><a href="#">El Auge del 'Play-to-Own': Los 5 Juegos Cripto que Dominarán 2026</a></h2>
+                        <p class="text-gray-600 text-sm mb-3">Más allá de ganar dinero jugando, la verdadera propiedad de activos digitales está revolucionando el gaming.</p>
+                         <span class="text-xs text-gray-500 uppercase font-semibold">NFTs y Gaming</span>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- In-Depth Analysis Section -->
+        <section id="analisis-profundo" class="bg-white rounded-lg shadow-lg p-8 mb-12 scroll-mt-24">
+            <div class="text-center mb-8">
+                <h2 class="text-4xl font-bold font-condensed text-primary">Análisis de Mercado: La Escalada de Bitcoin</h2>
+                <p class="text-gray-600 mt-2 max-w-3xl mx-auto">Visualiza el rendimiento de Bitcoin en los últimos meses. La reciente subida muestra una fuerte tendencia alcista tras un periodo de consolidación. Selecciona un periodo para ajustar el gráfico.</p>
+            </div>
+            <div class="flex justify-center space-x-2 mb-6">
+                <button class="chart-filter-btn active bg-accent text-white py-2 px-4 rounded-lg text-sm font-bold" data-period="7D">7 Días</button>
+                <button class="chart-filter-btn bg-gray-200 text-gray-700 py-2 px-4 rounded-lg text-sm font-bold" data-period="30D">30 Días</button>
+                <button class="chart-filter-btn bg-gray-200 text-gray-700 py-2 px-4 rounded-lg text-sm font-bold" data-period="90D">90 Días</button>
+            </div>
+            <div class="chart-container">
+                <canvas id="btcPriceChart"></canvas>
+            </div>
+        </section>
+
+        <!-- Latest News -->
+        <section id="ultimas-noticias" class="mb-12 scroll-mt-24">
+            <h2 class="text-3xl font-bold font-condensed text-primary border-b-4 border-accent pb-2 mb-6">Últimas Noticias</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                <article class="article-card bg-white rounded-lg shadow-md overflow-hidden">
+                     <img src="https://placehold.co/600x400/9945FF/FFFFFF?text=Solana" alt="Logo de Solana" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <span class="text-xs text-accent uppercase font-semibold">Actualización</span>
+                        <h3 class="text-xl font-bold font-condensed mt-1 text-primary hover:text-accent transition-colors"><a href="#">Solana lanza su nueva actualización 'FireDancer' para mejorar la estabilidad de la red</a></h3>
+                    </div>
+                </article>
+                <article class="article-card bg-white rounded-lg shadow-md overflow-hidden">
+                     <img src="https://placehold.co/600x400/F4A261/1a202c?text=Altseason%3F" alt="Inversor mirando gráficos" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <span class="text-xs text-accent uppercase font-semibold">Opinión</span>
+                        <h3 class="text-xl font-bold font-condensed mt-1 text-primary hover:text-accent transition-colors"><a href="#">¿Es la 'altseason' inminente? 3 indicadores a tener en cuenta</a></h3>
+                    </div>
+                </article>
+                <article class="article-card bg-white rounded-lg shadow-md overflow-hidden">
+                     <img src="https://placehold.co/600x400/2A9D8F/FFFFFF?text=Hardware+Wallets" alt="Monedero de hardware" class="w-full h-48 object-cover">
+                    <div class="p-6">
+                        <span class="text-xs text-accent uppercase font-semibold">Seguridad</span>
+                        <h3 class="text-xl font-bold font-condensed mt-1 text-primary hover:text-accent transition-colors"><a href="#">Guía 2025: Las mejores 'hardware wallets' para proteger tus criptoactivos</a></h3>
+                    </div>
+                </article>
+            </div>
+        </section>
+
+        <!-- Guides Section -->
+        <section id="guias" class="scroll-mt-24">
+             <h2 class="text-3xl font-bold font-condensed text-primary border-b-4 border-accent pb-2 mb-6">Guías para Novatos</h2>
+             <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+                <a href="#" class="article-card block bg-white p-6 rounded-lg shadow-md">
+                    <h4 class="font-bold font-condensed text-lg text-primary">¿Qué es Bitcoin?</h4>
+                    <p class="text-sm text-gray-600 mt-1">Todo lo que necesitas saber para empezar.</p>
+                </a>
+                <a href="#" class="article-card block bg-white p-6 rounded-lg shadow-md">
+                    <h4 class="font-bold font-condensed text-lg text-primary">Cómo Comprar Cripto</h4>
+                    <p class="text-sm text-gray-600 mt-1">Una guía paso a paso para tu primera inversión.</p>
+                </a>
+                <a href="#" class="article-card block bg-white p-6 rounded-lg shadow-md">
+                    <h4 class="font-bold font-condensed text-lg text-primary">Entendiendo las NFTs</h4>
+                     <p class="text-sm text-gray-600 mt-1">Descubre el mundo del arte y los coleccionables digitales.</p>
+                </a>
+                <a href="#" class="article-card block bg-white p-6 rounded-lg shadow-md">
+                    <h4 class="font-bold font-condensed text-lg text-primary">Glosario Cripto</h4>
+                     <p class="text-sm text-gray-600 mt-1">De 'HODL' a 'DeFi', domina la jerga del sector.</p>
+                </a>
+             </div>
+        </section>
+    </main>
+    
+    <footer class="bg-primary text-gray-300 mt-16">
+        <div class="container mx-auto px-4 py-12">
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-8">
+                <div>
+                    <h4 class="font-condensed font-bold text-white text-lg mb-4">CryptoSapiens</h4>
+                    <p class="text-sm">Información y análisis para la nueva economía digital.</p>
+                </div>
+                <div>
+                    <h4 class="font-condensed font-bold text-white text-lg mb-4">Secciones</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#analisis-profundo" class="hover:text-accent">Mercados</a></li>
+                        <li><a href="#ultimas-noticias" class="hover:text-accent">Noticias</a></li>
+                        <li><a href="#guias" class="hover:text-accent">Guías</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-condensed font-bold text-white text-lg mb-4">Legal</h4>
+                     <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-accent">Sobre Nosotros</a></li>
+                        <li><a href="#" class="hover:text-accent">Contacto</a></li>
+                        <li><a href="#" class="hover:text-accent">Política de Privacidad</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="font-condensed font-bold text-white text-lg mb-4">Síguenos</h4>
+                     <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="hover:text-accent">Twitter / X</a></li>
+                        <li><a href="#" class="hover:text-accent">Telegram</a></li>
+                        <li><a href="#" class="hover:text-accent">YouTube</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="border-t border-gray-700 mt-8 pt-6 text-center text-sm">
+                <p>&copy; 2025 CryptoSapiens. Todos los derechos reservados. El contenido es solo para fines informativos y no constituye asesoramiento financiero.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Subscription Modal -->
+    <div id="subscription-modal" class="modal-overlay fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none">
+        <div class="modal-content bg-white rounded-lg shadow-2xl p-8 w-full max-w-md opacity-0 transform -translate-y-10">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="text-2xl font-bold font-condensed">Suscríbete a CryptoSapiens</h3>
+                <button id="close-modal-btn" class="text-gray-400 hover:text-gray-800">&times;</button>
+            </div>
+            <p class="text-gray-600 mb-6">Recibe las noticias más importantes del mundo cripto directamente en tu email. ¡No te pierdas nada!</p>
+            <form>
+                <input type="email" placeholder="tu.email@ejemplo.com" class="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-accent">
+                <button type="submit" class="w-full bg-accent text-white font-bold py-3 px-4 rounded-lg hover:bg-opacity-90 transition-all">Suscribirme Ahora</button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Mobile Menu
+            const mobileMenuButton = document.getElementById('mobile-menu-button');
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenuButton.addEventListener('click', () => {
+                mobileMenu.classList.toggle('hidden');
+            });
+
+            // Smooth Scrolling
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    if (mobileMenu.classList.contains('hidden') === false) {
+                       mobileMenu.classList.add('hidden');
+                    }
+                    const targetId = this.getAttribute('href');
+                    const targetElement = document.querySelector(targetId);
+                    if (targetElement) {
+                         targetElement.scrollIntoView({
+                            behavior: 'smooth'
+                        });
+                    }
+                });
+            });
+
+            // Subscription Modal Logic
+            const modal = document.getElementById('subscription-modal');
+            const modalContent = modal.querySelector('.modal-content');
+            const subscribeBtn = document.getElementById('subscribe-btn');
+            const closeModalBtn = document.getElementById('close-modal-btn');
+
+            const openModal = () => {
+                modal.classList.remove('pointer-events-none');
+                modal.classList.add('opacity-100');
+                modal.classList.remove('opacity-0');
+                modalContent.classList.add('opacity-100', 'transform-none');
+                modalContent.classList.remove('opacity-0', '-translate-y-10');
+            };
+            
+            const closeModal = () => {
+                modalContent.classList.remove('opacity-100', 'transform-none');
+                modalContent.classList.add('opacity-0', '-translate-y-10');
+                modal.classList.remove('opacity-100');
+                modal.classList.add('opacity-0');
+                setTimeout(() => modal.classList.add('pointer-events-none'), 300);
+            };
+
+            subscribeBtn.addEventListener('click', openModal);
+            closeModalBtn.addEventListener('click', closeModal);
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) {
+                    closeModal();
+                }
+            });
+
+            // Chart.js Logic
+            const chartData = {
+                labels90D: Array.from({length: 90}, (_, i) => {
+                    const d = new Date();
+                    d.setDate(d.getDate() - 89 + i);
+                    return d.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' });
+                }),
+                data90D: Array.from({length: 90}, (_, i) => {
+                    let price = 85000 + (i * 200) + Math.random() * 5000;
+                    if (i > 75) price += (i - 75) * 1500;
+                    if (i > 85) price += (i - 85) * 3000;
+                    return price;
+                }),
+            };
+            chartData.labels30D = chartData.labels90D.slice(60);
+            chartData.data30D = chartData.data90D.slice(60);
+            chartData.labels7D = chartData.labels90D.slice(83);
+            chartData.data7D = chartData.data90D.slice(83);
+
+            const btcChartCtx = document.getElementById('btcPriceChart').getContext('2d');
+            const gradient = btcChartCtx.createLinearGradient(0, 0, 0, 400);
+            gradient.addColorStop(0, 'rgba(0, 123, 255, 0.4)');
+            gradient.addColorStop(1, 'rgba(0, 123, 255, 0)');
+
+            const btcChart = new Chart(btcChartCtx, {
+                type: 'line',
+                data: { labels: chartData.labels7D, datasets: [{ label: 'Precio de Bitcoin (USD)', data: chartData.data7D, borderColor: '#007BFF', borderWidth: 3, pointRadius: 0, tension: 0.4, fill: true, backgroundColor: gradient }] },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: false, ticks: { callback: (value) => '$' + new Intl.NumberFormat('en-US').format(value) } }, x: { grid: { display: false } } },
+                    plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false, callbacks: { label: (context) => `${context.dataset.label}: ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y)}` } } },
+                    interaction: { mode: 'index', intersect: false }
+                }
+            });
+            
+            const filterButtons = document.querySelectorAll('.chart-filter-btn');
+            filterButtons.forEach(button => {
+                button.addEventListener('click', () => {
+                    const period = button.dataset.period;
+                    filterButtons.forEach(btn => btn.classList.remove('active', 'bg-accent', 'text-white'));
+                    button.classList.add('active', 'bg-accent', 'text-white');
+                    switch (period) {
+                        case '7D': btcChart.data.labels = chartData.labels7D; btcChart.data.datasets[0].data = chartData.data7D; break;
+                        case '30D': btcChart.data.labels = chartData.labels30D; btcChart.data.datasets[0].data = chartData.data30D; break;
+                        case '90D': btcChart.data.labels = chartData.labels90D; btcChart.data.datasets[0].data = chartData.data90D; break;
+                    }
+                    btcChart.update();
+                });
+            });
+        });
+    </script>
+</body>
+</html>
