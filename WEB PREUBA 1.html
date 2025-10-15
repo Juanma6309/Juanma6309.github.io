@@ -9,78 +9,16 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Roboto+Condensed:wght@700&display=swap" rel="stylesheet">
+    <!-- CORRECCIÓN: Se ha añadido ./ para asegurar que el navegador busca el CSS en la misma carpeta. -->
+    <link rel="stylesheet" href="./style.css">
     <!-- Chosen Palette: "Tech Horizon" - A professional and modern palette using a dark navy (#1a202c) for text and headers, a vibrant electric blue (#007BFF) as the primary accent for links and CTAs, and a clean white/light gray (#F7FAFC) background to ensure readability and a premium feel. -->
     <!-- Application Structure Plan: The SPA is structured like a professional digital news portal to maximize user engagement and information discovery. The architecture includes: 1. **Header & Ticker**: For immediate brand recognition and live market data. 2. **Hero Section**: A prominent "above the fold" area for the day's top story to capture user attention instantly. 3. **Secondary Grid**: A multi-column grid for other important news, creating a high-density, scannable layout typical of major news sites. 4. **In-Depth Analysis Section**: A dedicated area for a featured article, paired with an interactive data visualization (the BTC price chart) to provide deeper context and encourage user interaction. 5. **Categorized Lists**: Simple, chronological lists for "Últimas Noticias" to ensure content freshness is visible. This structure was chosen because it's a proven, user-friendly pattern for content-heavy sites, guiding users from top headlines to deeper analysis naturally. -->
     <!-- Visualization & Content Choices: 
     - **Market Data**: Report Info -> Key crypto prices. Goal -> Inform. Viz/Presentation -> A scrolling ticker-like bar (HTML/CSS) and a static market list. Interaction -> N/A (visual scan). Justification -> Provides essential, at-a-glance information vital for the target audience. Library/Method -> HTML/Tailwind.
-    - **Bitcoin Price Trend**: Report Info -> Historical BTC price analysis. Goal -> Show Change/Analyze. Viz/Presentation -> Interactive Line Chart. Interaction -> User can filter time ranges (7D, 30D, 9D) via buttons, which dynamically updates the chart. Justification -> This is the most effective way to visualize time-series data and adds a critical interactive element for a finance-focused site. Library/Method -> Chart.js.
+    - **Bitcoin Price Trend**: Report Info -> Historical BTC price analysis. Goal -> Show Change/Analyze. Viz/Presentation -> Interactive Line Chart. Interaction -> User can filter time ranges (7D, 30D, 90D) via buttons, which dynamically updates the chart. Justification -> This is the most effective way to visualize time-series data and adds a critical interactive element for a finance-focused site. Library/Method -> Chart.js.
     - **News Layout**: Report Info -> Various article headlines and summaries. Goal -> Organize/Inform. Viz/Presentation -> A combination of a large hero component and a responsive grid of article cards. Interaction -> Hover effects for visual feedback. Justification -> This hierarchical visual design effectively communicates the relative importance of news stories. Library/Method -> HTML/Tailwind.
     - CONFIRMING NO SVG/Mermaid used. -->
     <!-- CONFIRMATION: NO SVG graphics used. NO Mermaid JS used. -->
-    <style>
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: #F7FAFC;
-        }
-        h1, h2, h3, h4, h5, h6, .font-condensed {
-            font-family: 'Roboto Condensed', sans-serif;
-        }
-        .text-accent { color: #007BFF; }
-        .bg-accent { background-color: #007BFF; }
-        .border-accent { border-color: #007BFF; }
-        .text-primary { color: #1a202c; }
-        .bg-primary { background-color: #1a202c; }
-        .nav-link {
-            position: relative;
-            transition: color 0.3s;
-        }
-        .nav-link::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            transform: scaleX(0);
-            height: 2px;
-            bottom: -4px;
-            left: 0;
-            background-color: #007BFF;
-            transform-origin: bottom right;
-            transition: transform 0.25s ease-out;
-        }
-        .nav-link:hover { color: #007BFF; }
-        .nav-link:hover::after {
-            transform: scaleX(1);
-            transform-origin: bottom left;
-        }
-        .article-card {
-            transition: transform 0.3s, box-shadow 0.3s;
-        }
-        .article-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-        }
-        .chart-container {
-            position: relative;
-            width: 100%;
-            max-width: 800px;
-            margin-left: auto;
-            margin-right: auto;
-            height: 400px;
-            max-height: 50vh;
-        }
-        @keyframes scroll {
-            0% { transform: translateX(0); }
-            100% { transform: translateX(-50%); }
-        }
-        .scrolling-ticker-content {
-            animation: scroll 40s linear infinite;
-        }
-        .modal-overlay {
-            transition: opacity 0.3s ease;
-        }
-        .modal-content {
-            transition: transform 0.3s ease, opacity 0.3s ease;
-        }
-    </style>
 </head>
 <body class="text-primary">
 
@@ -98,7 +36,7 @@
                 </div>
                 <div class="flex items-center">
                      <button id="subscribe-btn" class="hidden md:block bg-accent text-white font-bold py-2 px-4 rounded-lg text-sm hover:bg-opacity-90 transition-all">Suscribirse</button>
-                     <button id="mobile-menu-button" class="md:hidden ml-4 text-primary focus:outline-none">
+                     <button id="mobile-menu-button" class="md-hidden ml-4 text-primary focus:outline-none">
                         <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16m-7 6h7"></path></svg>
                     </button>
                 </div>
@@ -107,7 +45,7 @@
         <div id="market-ticker" class="bg-primary text-white text-sm border-t border-gray-600 overflow-hidden">
              <div class="scrolling-ticker-content flex">
                 <div class="flex-shrink-0 flex space-x-6 px-4 py-2 items-center">
-                    <span class="font-bold">ACTUALIZADO: 15 OCT 2025, 17:15 CEST</span>
+                    <span class="font-bold">ACTUALIZADO: 15 OCT 2025, 17:25 CEST</span>
                     <div class="flex items-center"><strong>BTC</strong>: $125,430.50 <span class="text-green-400 ml-1">▲ 8.2%</span></div>
                     <div class="flex items-center"><strong>ETH</strong>: $8,950.10 <span class="text-green-400 ml-1">▲ 6.5%</span></div>
                     <div class="flex items-center"><strong>SOL</strong>: $450.75 <span class="text-red-400 ml-1">▼ 1.2%</span></div>
@@ -116,7 +54,7 @@
                     <div class="flex items-center"><strong>DOT</strong>: $55.30 <span class="text-green-400 ml-1">▲ 4.8%</span></div>
                 </div>
                 <div class="flex-shrink-0 flex space-x-6 px-4 py-2 items-center">
-                    <span class="font-bold">ACTUALIZADO: 15 OCT 2025, 17:15 CEST</span>
+                    <span class="font-bold">ACTUALIZADO: 15 OCT 2025, 17:25 CEST</span>
                     <div class="flex items-center"><strong>BTC</strong>: $125,430.50 <span class="text-green-400 ml-1">▲ 8.2%</span></div>
                     <div class="flex items-center"><strong>ETH</strong>: $8,950.10 <span class="text-green-400 ml-1">▲ 6.5%</span></div>
                     <div class="flex items-center"><strong>SOL</strong>: $450.75 <span class="text-red-400 ml-1">▼ 1.2%</span></div>
@@ -286,13 +224,14 @@
         <div class="modal-content bg-white rounded-lg shadow-2xl p-8 w-full max-w-md opacity-0 transform -translate-y-10">
             <div class="flex justify-between items-center mb-4">
                 <h3 class="text-2xl font-bold font-condensed">Suscríbete a CryptoSapiens</h3>
-                <button id="close-modal-btn" class="text-gray-400 hover:text-gray-800">&times;</button>
+                <button id="close-modal-btn" class="text-gray-400 hover:text-gray-800 text-3xl leading-none">&times;</button>
             </div>
             <p class="text-gray-600 mb-6">Recibe las noticias más importantes del mundo cripto directamente en tu email. ¡No te pierdas nada!</p>
-            <form>
-                <input type="email" placeholder="tu.email@ejemplo.com" class="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-accent">
+            <form id="subscribe-form">
+                <input type="email" placeholder="tu.email@ejemplo.com" required class="w-full px-4 py-2 border border-gray-300 rounded-lg mb-4 focus:outline-none focus:ring-2 focus:ring-accent">
                 <button type="submit" class="w-full bg-accent text-white font-bold py-3 px-4 rounded-lg hover:bg-opacity-90 transition-all">Suscribirme Ahora</button>
             </form>
+             <div id="modal-feedback" class="text-center mt-4 font-bold"></div>
         </div>
     </div>
 
@@ -305,41 +244,23 @@
                 mobileMenu.classList.toggle('hidden');
             });
 
-            // Smooth Scrolling
-            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-                anchor.addEventListener('click', function (e) {
-                    e.preventDefault();
-                    if (mobileMenu.classList.contains('hidden') === false) {
-                       mobileMenu.classList.add('hidden');
-                    }
-                    const targetId = this.getAttribute('href');
-                    const targetElement = document.querySelector(targetId);
-                    if (targetElement) {
-                         targetElement.scrollIntoView({
-                            behavior: 'smooth'
-                        });
-                    }
-                });
-            });
-
             // Subscription Modal Logic
             const modal = document.getElementById('subscription-modal');
             const modalContent = modal.querySelector('.modal-content');
             const subscribeBtn = document.getElementById('subscribe-btn');
             const closeModalBtn = document.getElementById('close-modal-btn');
+            const subscribeForm = document.getElementById('subscribe-form');
+            const modalFeedback = document.getElementById('modal-feedback');
 
             const openModal = () => {
-                modal.classList.remove('pointer-events-none');
-                modal.classList.add('opacity-100');
-                modal.classList.remove('opacity-0');
-                modalContent.classList.add('opacity-100', 'transform-none');
+                modalFeedback.textContent = '';
+                subscribeForm.style.display = 'block';
+                modal.classList.remove('pointer-events-none', 'opacity-0');
                 modalContent.classList.remove('opacity-0', '-translate-y-10');
             };
             
             const closeModal = () => {
-                modalContent.classList.remove('opacity-100', 'transform-none');
                 modalContent.classList.add('opacity-0', '-translate-y-10');
-                modal.classList.remove('opacity-100');
                 modal.classList.add('opacity-0');
                 setTimeout(() => modal.classList.add('pointer-events-none'), 300);
             };
@@ -347,24 +268,20 @@
             subscribeBtn.addEventListener('click', openModal);
             closeModalBtn.addEventListener('click', closeModal);
             modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    closeModal();
-                }
+                if (e.target === modal) closeModal();
+            });
+            subscribeForm.addEventListener('submit', (e) => {
+                e.preventDefault();
+                subscribeForm.style.display = 'none';
+                modalFeedback.textContent = '¡Gracias por suscribirte!';
+                modalFeedback.classList.add('text-green-600');
+                setTimeout(closeModal, 2000);
             });
 
             // Chart.js Logic
             const chartData = {
-                labels90D: Array.from({length: 90}, (_, i) => {
-                    const d = new Date();
-                    d.setDate(d.getDate() - 89 + i);
-                    return d.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' });
-                }),
-                data90D: Array.from({length: 90}, (_, i) => {
-                    let price = 85000 + (i * 200) + Math.random() * 5000;
-                    if (i > 75) price += (i - 75) * 1500;
-                    if (i > 85) price += (i - 85) * 3000;
-                    return price;
-                }),
+                labels90D: Array.from({length: 90}, (_, i) => { const d = new Date(); d.setDate(d.getDate() - 89 + i); return d.toLocaleDateString('es-ES', { month: 'short', day: 'numeric' }); }),
+                data90D: Array.from({length: 90}, (_, i) => { let p = 85000 + (i * 200) + Math.random() * 5000; if (i > 75) p += (i - 75) * 1500; if (i > 85) p += (i - 85) * 3000; return p; }),
             };
             chartData.labels30D = chartData.labels90D.slice(60);
             chartData.data30D = chartData.data90D.slice(60);
@@ -380,10 +297,9 @@
                 type: 'line',
                 data: { labels: chartData.labels7D, datasets: [{ label: 'Precio de Bitcoin (USD)', data: chartData.data7D, borderColor: '#007BFF', borderWidth: 3, pointRadius: 0, tension: 0.4, fill: true, backgroundColor: gradient }] },
                 options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    scales: { y: { beginAtZero: false, ticks: { callback: (value) => '$' + new Intl.NumberFormat('en-US').format(value) } }, x: { grid: { display: false } } },
-                    plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false, callbacks: { label: (context) => `${context.dataset.label}: ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(context.parsed.y)}` } } },
+                    responsive: true, maintainAspectRatio: false,
+                    scales: { y: { beginAtZero: false, ticks: { callback: (v) => '$' + new Intl.NumberFormat('en-US').format(v) } }, x: { grid: { display: false } } },
+                    plugins: { legend: { display: false }, tooltip: { mode: 'index', intersect: false, callbacks: { label: (c) => `${c.dataset.label}: ${new Intl.NumberFormat('en-US', { style: 'currency', currency: 'USD' }).format(c.parsed.y)}` } } },
                     interaction: { mode: 'index', intersect: false }
                 }
             });
@@ -392,8 +308,9 @@
             filterButtons.forEach(button => {
                 button.addEventListener('click', () => {
                     const period = button.dataset.period;
-                    filterButtons.forEach(btn => btn.classList.remove('active', 'bg-accent', 'text-white'));
+                    filterButtons.forEach(btn => { btn.classList.remove('active', 'bg-accent', 'text-white'); btn.classList.add('bg-gray-200', 'text-gray-700'); });
                     button.classList.add('active', 'bg-accent', 'text-white');
+                    button.classList.remove('bg-gray-200', 'text-gray-700');
                     switch (period) {
                         case '7D': btcChart.data.labels = chartData.labels7D; btcChart.data.datasets[0].data = chartData.data7D; break;
                         case '30D': btcChart.data.labels = chartData.labels30D; btcChart.data.datasets[0].data = chartData.data30D; break;
@@ -406,3 +323,4 @@
     </script>
 </body>
 </html>
+
